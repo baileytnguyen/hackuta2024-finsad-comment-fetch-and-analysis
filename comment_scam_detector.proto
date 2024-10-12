@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package comment_scam_detector;
+
+// Message representing a single comment in a thread
+message Comment {
+  string user_id = 1;        // ID of the user who posted the comment
+  string username = 2;       // Username of the poster
+  string comment_text = 3;   // The actual comment text
+  int64 timestamp = 4;       // Unix timestamp of when the comment was posted
+}
+
+// Message representing a thread of comments
+message CommentThread {
+  repeated Comment comments = 1;  // List of comments in the thread
+}
+
+// Request message to send the thread for scam detection
+message ScamDetectionRequest {
+  CommentThread thread = 1;       // The comment thread to analyze
+}
+
+// Response message indicating whether a scam was detected
+message ScamDetectionResponse {
+  bool is_scam = 1;               // True if the thread contains a scam, false otherwise
+  string message = 2;             // A message providing more context (e.g., why it was detected as a scam)
+  float confidence = 3;
+}
+
+// Service definition for detecting scams in comment threads
+service ScamDetectionService {
+  // Detects if a comment thread contains a scam
+  rpc DetectScam(ScamDetectionRequest) returns (ScamDetectionResponse);
+}
