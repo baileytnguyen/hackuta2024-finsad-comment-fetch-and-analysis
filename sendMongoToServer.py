@@ -4,10 +4,13 @@ import comment_scam_detector_pb2
 import comment_scam_detector_pb2_grpc
 
 def send_data_to_grpc_server(threads):
-    # Create a gRPC channel
-    channel = grpc.insecure_channel('10.232.120.227:50051')  # Replace with your gRPC server address
-    stub = comment_scam_detector_pb2_grpc.ScamDetectionServiceStub(channel)
-    
+    # Create a gRPC channel for algorithm
+    algo_channel = grpc.insecure_channel('10.232.120.227:50051')  # Replace with your gRPC server address
+    algo_stub = comment_scam_detector_pb2_grpc.ScamDetectionServiceStub(algo_channel)
+
+    # Create a gRPC channel for LLM
+    ai_channel = grpc.insecure_channel('10.232.123.50:50051')  # Replace with your gRPC server address
+    ai_stub = comment_scam_detector_pb2_grpc.ScamDetectionServiceStub(ai_channel)
 
     for thread in threads:
         comments = []
@@ -40,15 +43,23 @@ def send_data_to_grpc_server(threads):
         request = comment_scam_detector_pb2.ScamDetectionRequest(thread=comment_thread)
         
         # Call the DetectScam method and get the response
-        response = stub.DetectScam(request)
+        algo_response = algo_stub.DetectScam(request)
+        ai_response = ai_stub.DetectScam(request)
         
         # Print the response
-        print("Scam Detection Result:")
-        print(f"Is Scam: {response.is_scam}")
-        print(f"Message: {response.message}")
-        print(f"Confidence: {response.confidence}")
+        print("Algo Scam Detection Result:")
+        print(f"Is Scam: {algo_response.is_scam}")
+        print(f"Message: {algo_response.message}")
+        print(f"Confidence: {algo_response.confidence}")
 
-    channel.close()  # Close the channel
+        # Print the response
+        print("AI Scam Detection Result:")
+        print(f"Is Scam: {ai_response.is_scam}")
+        print(f"Message: {ai_response.message}")
+        print(f"Confidence: {ai_response.confidence}")
+
+    algo_channel.close()  # Close the channel
+    ai_channel.close()  # Close the channel
 
 # MongoDB connection
 mongo_uri = 'mongodb://localhost:27017/'  # Adjust as necessary
