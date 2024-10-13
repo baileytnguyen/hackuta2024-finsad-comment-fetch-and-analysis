@@ -120,13 +120,23 @@ def get_comments(video_id):
         comment_thread = CommentThread(comments=proto_comments)
         request = ScamDetectionRequest(thread=comment_thread)
 
-        # Create a channel to connect to the server
-        channel = grpc.insecure_channel('10.232.120.227:50051')  # Adjust server address if needed
-        stub = ScamDetectionServiceStub(channel)
+        # Create a algo channel to connect to the server
+        algo_channel = grpc.insecure_channel('10.232.120.227:50051')  # Adjust server address if needed
+        algo_stub = ScamDetectionServiceStub(algo_channel)
 
-        # Make a call to the server
-        response = stub.DetectScam(request)
-        print("Response received:", response)
+        # Create a AI channel to connect to the server
+        ai_channel = grpc.insecure_channel('10.232.123.50:50051')  # Adjust server address if needed
+        ai_stub = ScamDetectionServiceStub(ai_channel)
+
+        # Make a call to the algo server
+        algo_response = algo_stub.DetectScam(request)
+        print("------------------")
+        print("\nResponse received:", algo_response)
+
+        # Make a call to the ai server
+        ai_response = ai_stub.DetectScam(request)
+        print("Response received:", ai_response)
+        print("------------------")
 
     else:
         print("Error:", response.status_code, response.text)
