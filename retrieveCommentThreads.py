@@ -131,11 +131,11 @@ def get_comments(video_id):
         # Make a call to the algo server
         algo_response = algo_stub.DetectScam(request)
         print("------------------")
-        print("\nResponse received:", algo_response)
+        print("Algorithm Response received:", algo_response)
 
         # Make a call to the ai server
         ai_response = ai_stub.DetectScam(request)
-        print("Response received:", ai_response)
+        print("AI Response received:", ai_response)
         print("------------------")
 
     else:
