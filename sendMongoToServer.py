@@ -24,6 +24,7 @@ def send_data_to_grpc_server(threads):
                 timestamp=top_comment.get('timestamp') # Current Unix timestamp
                 )  
             )
+            print(f"\nProcessing Top Comment: {top_comment.get('comment_text')}")
         else:
             # Extract replies
             replies = thread.get('replies', [])  # Assuming replies are stored in an array called 'replies'
@@ -35,6 +36,7 @@ def send_data_to_grpc_server(threads):
                     timestamp=reply.get('timestamp') # Current Unix timestamp
                     )  
                 )
+                print(f"\nProcessing Reply Comment: {reply.get('comment_text')}")
 
         # Create a CommentThread
         comment_thread = comment_scam_detector_pb2.CommentThread(comments=comments)
@@ -47,16 +49,21 @@ def send_data_to_grpc_server(threads):
         ai_response = ai_stub.DetectScam(request)
         
         # Print the response
+        print()
         print("Algo Scam Detection Result:")
-        print(f"Is Scam: {algo_response.is_scam}")
-        print(f"Message: {algo_response.message}")
-        print(f"Confidence: {algo_response.confidence}")
+        print(f" - Is Scam: {algo_response.is_scam}")
+        print(f" - Message: {algo_response.message}")
+        print(f" - Confidence: {algo_response.confidence}")
+
+        print()
 
         # Print the response
         print("AI Scam Detection Result:")
-        print(f"Is Scam: {ai_response.is_scam}")
-        print(f"Message: {ai_response.message}")
-        print(f"Confidence: {ai_response.confidence}")
+        print(f" - Is Scam: {ai_response.is_scam}")
+        print(f" - Message: {ai_response.message}")
+        print(f" - Confidence: {ai_response.confidence}")
+
+        print("==============================")
 
     algo_channel.close()  # Close the channel
     ai_channel.close()  # Close the channel
