@@ -6,7 +6,7 @@ import time
 import grpc
 from comment_scam_detector_pb2 import Comment, CommentThread, ScamDetectionRequest
 from comment_scam_detector_pb2_grpc import ScamDetectionServiceStub
-import comment_scam_detector_pb2_grpc
+#import comment_scam_detector_pb2_grpc
 
 # Load environment variables from .env file
 load_dotenv()
@@ -134,7 +134,8 @@ def get_comments(video_id):
 
 # Main part of the program
 if __name__ == "__main__":
-    youtube_link = input("Enter the YouTube video link: ")
+    # Prompt user for a single YouTube video link
+    youtube_link = input("Enter the YouTube video link: ").strip()
     video_id = extract_video_id(youtube_link)
     
     if video_id:

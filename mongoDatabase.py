@@ -63,7 +63,7 @@ def get_comments_and_store(video_id):
         "part": "snippet",
         "videoId": video_id,
         "key": api_key,
-        "maxResults": 5,
+        "maxResults": 10,
         "order": "relevance"
     }
 
