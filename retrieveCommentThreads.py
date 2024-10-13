@@ -5,6 +5,7 @@ import grpc
 from comment_scam_detector_pb2 import Comment, CommentThread, ScamDetectionRequest
 from comment_scam_detector_pb2_grpc import ScamDetectionServiceStub
 import comment_scam_detector_pb2_grpc
+
 # Replace with your API key
 api_key = "AIzaSyBygSCgD-2LuS69wfMvEwz7PgmFOInqgcY"
 
@@ -31,8 +32,8 @@ def get_replies(comment_id):
         for reply in replies_data.get("items", []):
             reply_text = reply["snippet"]["textDisplay"]
             reply_author = reply["snippet"]["authorDisplayName"]
-            reply_published_at = reply["snippet"]["publishedAt"]  # Get reply published time
-            reply_unix_time = int(time.mktime(time.strptime(reply_published_at, "%Y-%m-%dT%H:%M:%SZ")))  # Convert to Unix time
+            reply_published_at = reply["snippet"]["publishedAt"]
+            reply_unix_time = int(time.mktime(time.strptime(reply_published_at, "%Y-%m-%dT%H:%M:%SZ")))
             replies.append((reply_author, reply_text, reply_unix_time))
         return replies
     else:
@@ -68,63 +69,61 @@ def get_comments(video_id):
         "part": "snippet",
         "videoId": video_id,
         "key": api_key,
-        "maxResults": 5  # Number of top-level comments to retrieve per request
+        "maxResults": 2,  # Number of top-level comments to retrieve per request
+        "order": "relevance"  # Retrieve comments sorted by relevance (top comments)
     }
     
     response = requests.get(url, params=params)
     if response.status_code == 200:
         comments_data = response.json()
         
-        comments = []
+        # Create a list of proto comments from the actual YouTube comments
+        proto_comments = []
+
         for item in comments_data.get("items", []):
             top_comment = item["snippet"]["topLevelComment"]["snippet"]
             author = top_comment["authorDisplayName"]
-            author_channel_id = top_comment["authorChannelId"]  # Get author's channel ID
+            author_channel_id = top_comment["authorChannelId"]["value"]
             comment = top_comment["textDisplay"]
-            published_at = top_comment["publishedAt"]  # Get comment creation time
-            unix_time = int(time.mktime(time.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")))  # Convert to Unix time
+            published_at = top_comment["publishedAt"]
+            unix_time = int(time.mktime(time.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")))
             
-            comments.append((author, comment, unix_time, author_channel_id))
+            proto_object = Comment(user_id=author_channel_id, username=author, comment_text=comment, timestamp=unix_time)
+            proto_comments.append(proto_object)
 
-        # Sort comments by the desired criteria (for demonstration, sorting by the length of the comment)
-        comments.sort(key=lambda x: len(x[1]), reverse=True)  # Change sorting criteria as needed
-          
-        proto_comments = []
-        for author, comment, unix_time, author_channel_id in comments:
-            proto_object = Comment("", author, comment, unix_time)
+            # Print the comment details
             print(f"Author: {author}")
             print(f"Comment: {comment}")
-            print(f"Published At (Unix): {unix_time}")  # Print the creation time in Unix format
+            print(f"Published At (Unix): {unix_time}")
             
-            # Retrieve channel details for more information
+            # Retrieve channel details
             channel_details = get_channel_details(author_channel_id)
             if channel_details:
                 channel_title = channel_details.get("title")
                 print(f"Channel Title: {channel_title}")
             
-            # Retrieve replies if there are any
+            # Retrieve replies
             reply_count = item["snippet"]["totalReplyCount"]
             if reply_count > 0:
                 print("Replies:")
                 comment_id = item["id"]
                 replies = get_replies(comment_id)
                 for reply_author, reply_text, reply_unix_time in replies:
-                    print(f" - {reply_author}: {reply_text} (Published At Unix: {reply_unix_time})")  # Print reply with published date
+                    print(f" - {reply_author}: {reply_text} (Published At Unix: {reply_unix_time})")
             print("-" * 40)
 
-            # Create a channel to connect to the server
-            channel = grpc.insecure_channel('localhost:50051')  # Adjust to your server address
-            stub = comment_scam_detector_pb2_grpc.ScamDetectionServiceStub(channel)  # Replace with your service name
+        # Create a CommentThread with retrieved comments
+        comment_thread = CommentThread(comments=proto_comments)
+        request = ScamDetectionRequest(thread=comment_thread)
 
-            comment = Comment()
-            # Create a request
-            request : ScamDetectionRequest = ScamDetectionRequest()  # Replace with your request message type
-            # Populate request fields as necessary
-            request.field_name = "Your data"  # Set fields according to your proto definition
+        # Create a channel to connect to the server
+        channel = grpc.insecure_channel('10.232.120.227:50051')  # Adjust server address if needed
+        stub = ScamDetectionServiceStub(channel)
 
-            # Make a call to the server
-            response = stub.DetectScam(request)  # Replace with your method name
-            print("Response received:", response)
+        # Make a call to the server
+        response = stub.DetectScam(request)
+        print("Response received:", response)
+
     else:
         print("Error:", response.status_code, response.text)
 
@@ -135,7 +134,6 @@ if __name__ == "__main__":
     
     if video_id:
         print(f"Extracted Video ID: {video_id}")
-        # Retrieve and print comments and replies
         get_comments(video_id)
     else:
         print("Invalid YouTube link. Please check the format and try again.")

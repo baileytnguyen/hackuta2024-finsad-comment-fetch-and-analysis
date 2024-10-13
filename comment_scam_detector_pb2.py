@@ -21,9 +21,6 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 
 _sym_db = _symbol_database.Default()
 
-
-
-
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63omment_scam_detector.proto\x12\x15\x63omment_scam_detector\"U\n\x07\x43omment\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\x14\n\x0c\x63omment_text\x18\x03 \x01(\t\x12\x11\n\ttimestamp\x18\x04 \x01(\x03\"A\n\rCommentThread\x12\x30\n\x08\x63omments\x18\x01 \x03(\x0b\x32\x1e.comment_scam_detector.Comment\"L\n\x14ScamDetectionRequest\x12\x34\n\x06thread\x18\x01 \x01(\x0b\x32$.comment_scam_detector.CommentThread\"M\n\x15ScamDetectionResponse\x12\x0f\n\x07is_scam\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x12\n\nconfidence\x18\x03 \x01(\x02\x32\x7f\n\x14ScamDetectionService\x12g\n\nDetectScam\x12+.comment_scam_detector.ScamDetectionRequest\x1a,.comment_scam_detector.ScamDetectionResponseb\x06proto3')
 
 _globals = globals()
@@ -42,3 +39,4 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_SCAMDETECTIONSERVICE']._serialized_start=365
   _globals['_SCAMDETECTIONSERVICE']._serialized_end=492
 # @@protoc_insertion_point(module_scope)
+

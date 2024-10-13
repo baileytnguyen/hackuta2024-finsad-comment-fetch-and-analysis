@@ -28,7 +28,7 @@ def create_dummy_data():
 
 def main():
     # Create a gRPC channel to connect to the server
-    channel = grpc.insecure_channel('10.234.118.25:50051')  # Update with your server address if needed
+    channel = grpc.insecure_channel('10.232.120.227:50051')  # Update with your server address if needed
     stub = comment_scam_detector_pb2_grpc.ScamDetectionServiceStub(channel)
 
     # Create dummy data
