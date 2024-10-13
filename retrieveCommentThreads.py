@@ -1,13 +1,18 @@
 import requests
 import re
+from dotenv import load_dotenv
+import os
 import time
 import grpc
 from comment_scam_detector_pb2 import Comment, CommentThread, ScamDetectionRequest
 from comment_scam_detector_pb2_grpc import ScamDetectionServiceStub
 import comment_scam_detector_pb2_grpc
 
-# Replace with your API key
-api_key = "AIzaSyBygSCgD-2LuS69wfMvEwz7PgmFOInqgcY"
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the API key from environment variables
+api_key = os.getenv("API_KEY")
 
 # Function to extract video ID from YouTube link
 def extract_video_id(youtube_link):
